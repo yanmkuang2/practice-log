@@ -400,6 +400,62 @@
             justify-content: center;
         }
 
+        .pdf-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(74, 63, 53, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .pdf-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pdf-viewer-container {
+            width: 90%;
+            max-width: 1200px;
+            height: 90vh;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(74, 63, 53, 0.5);
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .pdf-viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 2px solid var(--highlight);
+            background: white;
+        }
+
+        .pdf-viewer-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            color: var(--deep-brown);
+        }
+
+        .pdf-iframe {
+            flex: 1;
+            border: none;
+            width: 100%;
+            background: #ffffff;
+            background-color: #ffffff !important;
+        }
+
         .entry-modal.active {
             display: flex;
             align-items: center;
@@ -680,6 +736,77 @@
                 font-size: 2.5rem;
             }
 
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .export-import-buttons {
+                flex-direction: column;
+                gap: 0.75rem;
+                margin-top: 1rem;
+            }
+
+            .secondary-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .calendar-header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .month-year {
+                font-size: 1.5rem;
+                text-align: center;
+            }
+
+            .nav-buttons {
+                width: 100%;
+                flex-direction: row;
+                gap: 0.5rem;
+            }
+
+            .nav-buttons button {
+                flex: 1;
+                padding: 0.6rem 0.75rem;
+                font-size: 0.85rem;
+            }
+
+            .deadlines-section {
+                padding: 1rem;
+            }
+
+            .deadlines-title {
+                font-size: 1.25rem;
+            }
+
+            .add-deadline-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+            }
+
+            .deadline-item {
+                flex-direction: column;
+                gap: 0.75rem;
+                padding: 1rem;
+            }
+
+            .deadline-countdown {
+                text-align: left;
+                padding-left: 0;
+            }
+
+            .countdown-number {
+                font-size: 2rem;
+            }
+
+            .deadline-actions {
+                margin-left: 0;
+                justify-content: flex-start;
+            }
+
             .calendar-grid {
                 gap: 0.5rem;
             }
@@ -692,8 +819,45 @@
                 font-size: 1.2rem;
             }
 
+            .day-header {
+                font-size: 0.75rem;
+                padding: 0.75rem 0.25rem;
+            }
+
             .entry-content {
-                padding: 2rem;
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .entry-date {
+                font-size: 1.5rem;
+            }
+
+            .quote {
+                font-size: 0.9rem;
+            }
+
+            .color-palette {
+                gap: 0.5rem;
+            }
+
+            .color-swatch {
+                width: 40px;
+                height: 40px;
+            }
+
+            .pdf-viewer-container {
+                width: 95%;
+                height: 85vh;
+                margin: 0;
+            }
+
+            .pdf-viewer-header {
+                padding: 1rem;
+            }
+
+            .pdf-viewer-title {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -880,6 +1044,16 @@
         </div>
     </div>
 
+    <div class="pdf-modal" id="pdfModal">
+        <div class="pdf-viewer-container">
+            <div class="pdf-viewer-header">
+                <div class="pdf-viewer-title" id="pdfViewerTitle">PDF Viewer</div>
+                <button class="close-btn" id="closePdfModal">×</button>
+            </div>
+            <iframe class="pdf-iframe" id="pdfIframe"></iframe>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
         const STORAGE_KEY = 'practiceLogEntries';
@@ -973,7 +1147,7 @@
 
         // Download PDF
         window.downloadPdf = function(pdfData, fileName) {
-            // Convert base64 to blob and open in new tab
+            // Open PDF in modal on the same page
             try {
                 // Extract the base64 data (remove the data:application/pdf;base64, prefix if present)
                 const base64Data = pdfData.includes(',') ? pdfData.split(',')[1] : pdfData;
@@ -989,14 +1163,28 @@
                 const blob = new Blob([bytes], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
                 
-                // Open in new tab
-                window.open(url, '_blank');
+                // Set iframe source and show modal
+                document.getElementById('pdfIframe').src = url + '#toolbar=0&view=FitH';
+                document.getElementById('pdfViewerTitle').textContent = fileName;
+                document.getElementById('pdfModal').classList.add('active');
                 
-                // Clean up the URL after a short delay
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                // Store URL for cleanup
+                window.currentPdfUrl = url;
             } catch (error) {
                 console.error('Error opening PDF:', error);
                 alert('Error opening PDF. Please try re-uploading the file.');
+            }
+        }
+
+        // Close PDF modal
+        function closePdfModal() {
+            document.getElementById('pdfModal').classList.remove('active');
+            document.getElementById('pdfIframe').src = '';
+            
+            // Clean up the blob URL
+            if (window.currentPdfUrl) {
+                URL.revokeObjectURL(window.currentPdfUrl);
+                window.currentPdfUrl = null;
             }
         }
 
@@ -1489,6 +1677,14 @@
         document.getElementById('deadlineModal').addEventListener('click', (e) => {
             if (e.target.id === 'deadlineModal') {
                 closeDeadlineModal();
+            }
+        });
+
+        // PDF modal handlers
+        document.getElementById('closePdfModal').addEventListener('click', closePdfModal);
+        document.getElementById('pdfModal').addEventListener('click', (e) => {
+            if (e.target.id === 'pdfModal') {
+                closePdfModal();
             }
         });
 
