@@ -788,7 +788,7 @@
     <div class="deadline-modal" id="deadlineModal">
         <div class="entry-content">
             <div class="entry-header">
-                <div class="entry-date">Add Deadline</div>
+                <div class="entry-date" id="deadlineModalTitle">Add Deadline</div>
                 <button class="close-btn" id="closeDeadlineModal">×</button>
             </div>
 
@@ -920,12 +920,31 @@
         // Handle deadline file selection
         async function handleDeadlineFileSelect(event) {
             const file = event.target.files[0];
-            if (file && file.type === 'application/pdf') {
+            if (!file) return;
+            
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file.');
+                event.target.value = '';
+                return;
+            }
+            
+            // Check file size (limit to 2MB to avoid localStorage issues)
+            const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+            if (file.size > maxSize) {
+                alert('⚠️ PDF file is too large!\n\nMaximum file size: 2MB\nYour file: ' + (file.size / 1024 / 1024).toFixed(1) + 'MB\n\nPlease use a smaller PDF file.');
+                event.target.value = '';
+                return;
+            }
+            
+            try {
                 currentPdfFile = {
                     name: file.name,
                     data: await fileToBase64(file)
                 };
                 showDeadlineFileInfo(file.name);
+            } catch (error) {
+                alert('Error uploading PDF. Please try again.');
+                event.target.value = '';
             }
         }
 
@@ -960,7 +979,17 @@
 
         // Save deadlines to localStorage
         function saveDeadlines(deadlines) {
-            localStorage.setItem(DEADLINES_KEY, JSON.stringify(deadlines));
+            try {
+                localStorage.setItem(DEADLINES_KEY, JSON.stringify(deadlines));
+            } catch (e) {
+                if (e.name === 'QuotaExceededError' || e.code === 22) {
+                    alert('⚠️ Storage limit exceeded!\n\nYour PDF attachments are too large for browser storage. Try:\n1. Using smaller PDF files (under 2MB each)\n2. Removing PDF attachments from old deadlines\n3. Exporting your data as backup');
+                    throw e;
+                } else {
+                    alert('Error saving deadline. Please try again.');
+                    throw e;
+                }
+            }
         }
 
         // Export all data to JSON file
@@ -1121,9 +1150,9 @@
             
             if (deadline) {
                 // Edit mode
-                document.querySelector('#deadlineModal .entry-date').textContent = 'Edit Deadline';
-                document.getElementById('deadlineName').value = deadline.name;
-                document.getElementById('deadlineDate').value = deadline.date;
+                document.getElementById('deadlineModalTitle').textContent = 'Edit Deadline';
+                document.getElementById('deadlineName').value = deadline.name || '';
+                document.getElementById('deadlineDate').value = deadline.date || '';
                 
                 // Select the matching color
                 const colorInputs = document.querySelectorAll('input[name="deadlineColor"]');
@@ -1144,7 +1173,7 @@
                 }
             } else {
                 // Add mode
-                document.querySelector('#deadlineModal .entry-date').textContent = 'Add Deadline';
+                document.getElementById('deadlineModalTitle').textContent = 'Add Deadline';
                 document.getElementById('deadlineName').value = '';
                 document.getElementById('deadlineDate').value = '';
                 document.getElementById('color5').checked = true; // Default to gold
@@ -1336,28 +1365,33 @@
         document.getElementById('deadlineForm').addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const deadlines = loadDeadlines();
-            const selectedColor = document.querySelector('input[name="deadlineColor"]:checked').value;
-            
-            const deadlineData = {
-                name: document.getElementById('deadlineName').value,
-                date: document.getElementById('deadlineDate').value,
-                color: selectedColor,
-                pdf: currentPdfFile
-            };
-            
-            if (editingDeadlineIndex !== null) {
-                // Edit existing deadline
-                deadlines[editingDeadlineIndex] = deadlineData;
-            } else {
-                // Add new deadline
-                deadlines.push(deadlineData);
+            try {
+                const deadlines = loadDeadlines();
+                const selectedColor = document.querySelector('input[name="deadlineColor"]:checked').value;
+                
+                const deadlineData = {
+                    name: document.getElementById('deadlineName').value,
+                    date: document.getElementById('deadlineDate').value,
+                    color: selectedColor,
+                    pdf: currentPdfFile
+                };
+                
+                if (editingDeadlineIndex !== null) {
+                    // Edit existing deadline
+                    deadlines[editingDeadlineIndex] = deadlineData;
+                } else {
+                    // Add new deadline
+                    deadlines.push(deadlineData);
+                }
+                
+                saveDeadlines(deadlines);
+                closeDeadlineModal();
+                renderDeadlines();
+                renderCalendar();
+            } catch (error) {
+                console.error('Error saving deadline:', error);
+                // Don't close modal if save failed
             }
-            
-            saveDeadlines(deadlines);
-            closeDeadlineModal();
-            renderDeadlines();
-            renderCalendar();
         });
 
         // Delete entry
