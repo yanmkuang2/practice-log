@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice Log</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #FAF7F0;
+            --warm-brown: #8B7355;
+            --deep-brown: #4A3F35;
+            --accent-gold: #D4A574;
+            --soft-gray: #B8AFA4;
+            --highlight: #E8DCC8;
+            --shadow: rgba(74, 63, 53, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, #FFF8E8 100%);
+            color: var(--deep-brown);
+            min-height: 100vh;
+            padding: 2rem;
+            background-attachment: fixed;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139, 115, 85, 0.03) 2px, rgba(139, 115, 85, 0.03) 4px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 4rem;
+            font-weight: 400;
+            color: var(--deep-brown);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--warm-brown);
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            text-transform: lowercase;
+        }
+
+        .export-import-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .secondary-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            background: rgba(139, 115, 85, 0.1);
+            border: 1px solid var(--warm-brown);
+            color: var(--warm-brown);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .secondary-btn:hover {
+            background: var(--warm-brown);
+            color: var(--cream);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(139, 115, 85, 0.1);
+            animation: fadeIn 0.8s ease-out 0.2s backwards;
+        }
+
+        .month-year {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2rem;
+            color: var(--deep-brown);
+        }
+
+        .deadlines-section {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(139, 115, 85, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.8s ease-out 0.3s backwards;
+        }
+
+        .deadlines-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .deadlines-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            color: var(--deep-brown);
+        }
+
+        .add-deadline-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .deadlines-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .deadline-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-gold);
+            transition: all 0.3s ease;
+        }
+
+        .deadline-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .deadline-info {
+            flex: 1;
+        }
+
+        .deadline-name {
+            font-weight: 600;
+            color: var(--deep-brown);
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .deadline-date-text {
+            color: var(--warm-brown);
+            font-size: 0.9rem;
+        }
+
+        .deadline-countdown {
+            text-align: right;
+            padding-left: 1rem;
+        }
+
+        .countdown-number {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .countdown-label {
+            color: var(--warm-brown);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .deadline-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: 1rem;
+        }
+
+        .icon-btn {
+            background: rgba(139, 115, 85, 0.1);
+            border: 1px solid rgba(139, 115, 85, 0.2);
+            color: var(--warm-brown);
+            cursor: pointer;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .icon-btn:hover {
+            background: var(--warm-brown);
+            color: var(--cream);
+            border-color: var(--warm-brown);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .icon-btn.delete-icon:hover {
+            background: #C44569;
+            border-color: #C44569;
+        }
+
+        .no-deadlines {
+            text-align: center;
+            color: var(--soft-gray);
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        button {
+            background: var(--warm-brown);
+            color: var(--cream);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        button:hover {
+            background: var(--deep-brown);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.8s ease-out 0.4s backwards;
+        }
+
+        .day-header {
+            text-align: center;
+            font-weight: 600;
+            color: var(--warm-brown);
+            padding: 1rem;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .day-cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 115, 85, 0.15);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .day-cell:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px var(--shadow);
+            border-color: var(--accent-gold);
+        }
+
+        .day-cell.other-month {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .day-cell.today {
+            border: 2px solid var(--accent-gold);
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.15) 0%, rgba(255, 255, 255, 0.7) 100%);
+        }
+
+        .day-cell.has-entry::after {
+            content: '♪';
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            animation: noteFloat 2s ease-in-out infinite;
+        }
+
+        .day-cell.has-deadline {
+            border: 2px solid;
+        }
+
+        @keyframes noteFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .day-number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--deep-brown);
+            margin-bottom: 0.25rem;
+        }
+
+        .day-preview {
+            font-size: 0.75rem;
+            color: var(--warm-brown);
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .entry-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(74, 63, 53, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            padding: 2rem;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .deadline-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(74, 63, 53, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            padding: 2rem;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .deadline-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .entry-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .entry-content {
+            background: var(--cream);
+            border-radius: 16px;
+            padding: 3rem;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(74, 63, 53, 0.3);
+            animation: slideUp 0.4s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--highlight);
+        }
+
+        .entry-date {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2rem;
+            color: var(--deep-brown);
+        }
+
+        .quote {
+            font-style: italic;
+            color: var(--warm-brown);
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            line-height: 1.6;
+            padding-left: 1rem;
+            border-left: 3px solid var(--accent-gold);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--warm-brown);
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: none;
+        }
+
+        .close-btn:hover {
+            color: var(--deep-brown);
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: var(--warm-brown);
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+            letter-spacing: 0.02em;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--highlight);
+            border-radius: 8px;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            color: var(--deep-brown);
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.6;
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            padding: 0.5rem 0;
+        }
+
+        .color-option {
+            display: none;
+        }
+
+        .color-swatch {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            display: inline-block;
+            position: relative;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .color-option:checked + .color-swatch {
+            border-color: var(--deep-brown);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-option:checked + .color-swatch::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        .file-upload-area {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: rgba(139, 115, 85, 0.1);
+            border: 2px dashed var(--warm-brown);
+            color: var(--warm-brown);
+            font-weight: 600;
+            width: auto;
+            flex: none;
+        }
+
+        .upload-btn:hover {
+            background: rgba(139, 115, 85, 0.2);
+            border-style: solid;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid var(--accent-gold);
+            border-radius: 8px;
+        }
+
+        .file-name {
+            color: var(--deep-brown);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .file-name:hover {
+            color: var(--warm-brown);
+        }
+
+        .file-name::before {
+            content: '📄';
+            font-size: 1.2rem;
+        }
+
+        .remove-file-btn {
+            background: none;
+            border: none;
+            color: var(--warm-brown);
+            cursor: pointer;
+            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: none;
+            width: auto;
+            height: auto;
+        }
+
+        .remove-file-btn:hover {
+            color: #C44569;
+            transform: scale(1.2);
+        }
+
+        .delete-btn {
+            background: var(--soft-gray);
+        }
+
+        .delete-btn:hover {
+            background: #8B7355;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .calendar-grid {
+                gap: 0.5rem;
+            }
+
+            .day-cell {
+                padding: 0.5rem;
+            }
+
+            .day-number {
+                font-size: 1.2rem;
+            }
+
+            .entry-content {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Practice Log</h1>
+            <div class="subtitle">your musical journey, one day at a time</div>
+            <div class="export-import-buttons">
+                <button id="exportDataBtn" class="secondary-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Export Data
+                </button>
+                <button id="importDataBtn" class="secondary-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Import Data
+                </button>
+                <input type="file" id="importFileInput" accept=".json" style="display: none;">
+            </div>
+        </header>
+
+        <div class="calendar-header">
+            <div class="month-year" id="monthYear"></div>
+            <div class="nav-buttons">
+                <button id="prevMonth">← Previous</button>
+                <button id="todayBtn">Today</button>
+                <button id="nextMonth">Next →</button>
+            </div>
+        </div>
+
+        <div class="deadlines-section">
+            <div class="deadlines-header">
+                <div class="deadlines-title">Upcoming Deadlines</div>
+                <button class="add-deadline-btn" id="addDeadlineBtn">+ Add Deadline</button>
+            </div>
+            <div class="deadlines-list" id="deadlinesList">
+                <div class="no-deadlines">No deadlines yet. Add your first audition or performance!</div>
+            </div>
+        </div>
+
+        <div class="calendar-grid" id="calendar">
+            <div class="day-header">Sun</div>
+            <div class="day-header">Mon</div>
+            <div class="day-header">Tue</div>
+            <div class="day-header">Wed</div>
+            <div class="day-header">Thu</div>
+            <div class="day-header">Fri</div>
+            <div class="day-header">Sat</div>
+        </div>
+    </div>
+
+    <div class="entry-modal" id="entryModal">
+        <div class="entry-content">
+            <div class="entry-header">
+                <div>
+                    <div class="entry-date" id="entryDate"></div>
+                    <div class="quote" id="dailyQuote"></div>
+                </div>
+                <button class="close-btn" id="closeModal">×</button>
+            </div>
+
+            <form id="entryForm">
+                <div class="form-group">
+                    <label for="scales">Scales & Études</label>
+                    <input type="text" id="scales" placeholder="e.g., C major, A minor arpeggios, chromatic">
+                </div>
+
+                <div class="form-group">
+                    <label for="pieces">Repertoires</label>
+                    <input type="text" id="pieces" placeholder="e.g., Bach Prelude in C, Chopin Nocturne">
+                </div>
+
+                <div class="form-group">
+                    <label for="goals">Today's Goals</label>
+                    <textarea id="goals" placeholder="What do you want to focus on today?"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Practice Notes</label>
+                    <textarea id="notes" placeholder="How did it go? What needs more work?"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="delete-btn" id="deleteEntry">Delete Entry</button>
+                    <button type="submit">Save Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="deadline-modal" id="deadlineModal">
+        <div class="entry-content">
+            <div class="entry-header">
+                <div class="entry-date">Add Deadline</div>
+                <button class="close-btn" id="closeDeadlineModal">×</button>
+            </div>
+
+            <form id="deadlineForm">
+                <div class="form-group">
+                    <label for="deadlineName">Event Name</label>
+                    <input type="text" id="deadlineName" placeholder="e.g., Juilliard Audition, Competition Application" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="deadlineDate">Date</label>
+                    <input type="date" id="deadlineDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="deadlineColor">Color</label>
+                    <div class="color-palette">
+                        <input type="radio" name="deadlineColor" id="color1" value="#FF6B9D" class="color-option">
+                        <label for="color1" class="color-swatch" style="background-color: #FF6B9D;" title="Pink"></label>
+                        
+                        <input type="radio" name="deadlineColor" id="color2" value="#C44569" class="color-option">
+                        <label for="color2" class="color-swatch" style="background-color: #C44569;" title="Rose"></label>
+                        
+                        <input type="radio" name="deadlineColor" id="color3" value="#FFA07A" class="color-option">
+                        <label for="color3" class="color-swatch" style="background-color: #FFA07A;" title="Coral"></label>
+                        
+                        <input type="radio" name="deadlineColor" id="color4" value="#FFB347" class="color-option">
+                        <label for="color4" class="color-swatch" style="background-color: #FFB347;" title="Peach"></label>
+                        
+                        <input type="radio" name="deadlineColor" id="color5" value="#D4A574" class="color-option" checked>
+                        <label for="color5" class="color-swatch" style="background-color: #D4A574;" title="Gold"></label>
+                        
+                        <input type="radio" name="deadlineColor" id="color6" value="#98D8C8" class="color-option">
+                        <label for="color6" class="color-swatch" style="background-color: #98D8C8;" title="Mint"></label>
+                        
+                        <input type="radio" name="deadlineColor" id="color7" value="#6BCB77" class="color-option">
+                        <label for="color7" class="color-swatch" style="background-color: #6BCB77;" title="Green"></label>
+                        
+                        <input type="radio" name="deadlineColor" id="color8" value="#4D96FF" class="color-option">
+                        <label for="color8" class="color-swatch" style="background-color: #4D96FF;" title="Blue"></label>
+                        
+                        <input type="radio" name="deadlineColor" id="color9" value="#9D84B7" class="color-option">
+                        <label for="color9" class="color-swatch" style="background-color: #9D84B7;" title="Lavender"></label>
+                        
+                        <input type="radio" name="deadlineColor" id="color10" value="#E384FF" class="color-option">
+                        <label for="color10" class="color-swatch" style="background-color: #E384FF;" title="Purple"></label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="deadlinePdf">Attach PDF (optional)</label>
+                    <div class="file-upload-area">
+                        <input type="file" id="deadlinePdf" accept=".pdf" style="display: none;">
+                        <button type="button" class="upload-btn" id="deadlineUploadBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            Choose PDF File
+                        </button>
+                        <div class="file-info" id="deadlineFileInfo" style="display: none;">
+                            <div class="file-name" id="deadlineFileName"></div>
+                            <button type="button" class="remove-file-btn" id="deadlineRemoveFileBtn">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="color: var(--warm-brown); font-size: 0.85rem; margin-top: 0.5rem; font-style: italic;">
+                        Attach repertoire lists, competition requirements, etc.
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit">Save Deadline</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        const STORAGE_KEY = 'practiceLogEntries';
+        const DEADLINES_KEY = 'practiceLogDeadlines';
+        let currentDate = new Date();
+        let selectedDate = null;
+        let editingDeadlineIndex = null;
+        let currentPdfFile = null;
+
+        // Inspirational quotes
+        const quotes = [
+            "I know quite certainly that I myself have no special talent; curiosity, obsession and dogged endurance, combined with self-criticism, have brought me to my ideas. — Albert Einstein",
+            "It's not that I'm so smart, it's just that I stay with problems longer. — Albert Einstein",
+            "The expert in anything was once a beginner. — Helen Hayes",
+            "I don't wait for moods. You accomplish nothing if you do that. Your mind must know it has got to get down to work. — Pearl S. Buck",
+            "Practice isn't the thing you do once you're good. It's the thing you do that makes you good. — Malcolm Gladwell",
+            "The more I practice, the luckier I get. — Gary Player",
+            "Amateurs practice until they get it right; professionals practice until they can't get it wrong. — Unknown",
+            "Music is the arithmetic of sounds as optics is the geometry of light. — Claude Debussy",
+            "Without craftsmanship, inspiration is a mere reed shaken in the wind. — Johannes Brahms",
+            "Life is like a piano. What you get out of it depends on how you play it. — Tom Lehrer",
+            "Study the science of art. Study the art of science. Develop your senses—especially learn how to see. — Leonardo da Vinci",
+            "The distance between insanity and genius is measured only by success. — Bruce Feirstein",
+            "Discipline is choosing between what you want now and what you want most. — Abraham Lincoln",
+            "Success is the sum of small efforts, repeated day in and day out. — Robert Collier",
+            "The only way to do great work is to love what you do. — Steve Jobs",
+            "Talent is cheaper than table salt. What separates the talented individual from the successful one is a lot of hard work. — Stephen King",
+            "Don't practice until you get it right. Practice until you can't get it wrong. — Unknown",
+            "Hard work beats talent when talent doesn't work hard. — Tim Notke"
+        ];
+
+        function getRandomQuote() {
+            return quotes[Math.floor(Math.random() * quotes.length)];
+        }
+
+        // Convert file to base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Handle deadline file selection
+        async function handleDeadlineFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                currentPdfFile = {
+                    name: file.name,
+                    data: await fileToBase64(file)
+                };
+                showDeadlineFileInfo(file.name);
+            }
+        }
+
+        // Show deadline file info
+        function showDeadlineFileInfo(fileName) {
+            document.getElementById('deadlineFileName').textContent = fileName;
+            document.getElementById('deadlineFileInfo').style.display = 'flex';
+            document.getElementById('deadlineUploadBtn').style.display = 'none';
+        }
+
+        // Hide deadline file info
+        function hideDeadlineFileInfo() {
+            document.getElementById('deadlineFileInfo').style.display = 'none';
+            document.getElementById('deadlineUploadBtn').style.display = 'inline-flex';
+            document.getElementById('deadlinePdf').value = '';
+            currentPdfFile = null;
+        }
+
+        // Download PDF
+        window.downloadPdf = function(pdfData, fileName) {
+            const link = document.createElement('a');
+            link.href = pdfData;
+            link.download = fileName;
+            link.click();
+        }
+
+        // Load deadlines from localStorage
+        function loadDeadlines() {
+            const data = localStorage.getItem(DEADLINES_KEY);
+            return data ? JSON.parse(data) : [];
+        }
+
+        // Save deadlines to localStorage
+        function saveDeadlines(deadlines) {
+            localStorage.setItem(DEADLINES_KEY, JSON.stringify(deadlines));
+        }
+
+        // Export all data to JSON file
+        function exportData() {
+            const data = {
+                entries: loadEntries(),
+                deadlines: loadDeadlines(),
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `practice-log-backup-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            alert('✓ Backup saved!\n\nYour practice log has been downloaded. Save this file somewhere safe (Google Drive, email it to yourself, etc.).\n\nYou don\'t need to open it - just keep it safe. Use "Import Data" to restore it later.');
+        }
+
+        // Import data from JSON file
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validate data structure
+                    if (!data.entries || !data.deadlines) {
+                        throw new Error('Invalid backup file format');
+                    }
+                    
+                    // Ask for confirmation before overwriting
+                    const confirmMsg = '⚠️ This will replace all your current data with the backup.\n\nAre you sure you want to continue?';
+                    if (!confirm(confirmMsg)) {
+                        return;
+                    }
+                    
+                    // Import the data
+                    saveEntries(data.entries);
+                    saveDeadlines(data.deadlines);
+                    
+                    // Refresh the display
+                    renderCalendar();
+                    renderDeadlines();
+                    
+                    alert('✓ Success!\n\nYour practice log has been restored from the backup file.');
+                } catch (error) {
+                    alert('✗ Import failed\n\nPlease make sure you selected the correct backup file that was created by "Export Data".');
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset file input
+            event.target.value = '';
+        }
+
+        // Calculate days until deadline
+        function daysUntil(dateStr) {
+            const [year, month, day] = dateStr.split('-');
+            const deadline = new Date(year, month - 1, day);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            deadline.setHours(0, 0, 0, 0);
+            const diffTime = deadline - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        // Render deadlines list
+        function renderDeadlines() {
+            const deadlines = loadDeadlines();
+            const deadlinesList = document.getElementById('deadlinesList');
+            
+            if (deadlines.length === 0) {
+                deadlinesList.innerHTML = '<div class="no-deadlines">No deadlines yet. Add your first audition or performance!</div>';
+                return;
+            }
+
+            // Sort by date (closest first)
+            deadlines.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            deadlinesList.innerHTML = deadlines.map((deadline, index) => {
+                const days = daysUntil(deadline.date);
+                const [year, month, day] = deadline.date.split('-');
+                const deadlineDate = new Date(year, month - 1, day);
+                const dateStr = deadlineDate.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+
+                const deadlineColor = deadline.color || '#D4A574';
+
+                let countdownText = '';
+                if (days < 0) {
+                    countdownText = `<div class="countdown-number" style="color: ${deadlineColor}">${Math.abs(days)}</div><div class="countdown-label">days ago</div>`;
+                } else if (days === 0) {
+                    countdownText = `<div class="countdown-number" style="color: ${deadlineColor}">TODAY</div>`;
+                } else if (days === 1) {
+                    countdownText = `<div class="countdown-number" style="color: ${deadlineColor}">1</div><div class="countdown-label">day</div>`;
+                } else {
+                    countdownText = `<div class="countdown-number" style="color: ${deadlineColor}">${days}</div><div class="countdown-label">days</div>`;
+                }
+
+                return `
+                    <div class="deadline-item" style="border-left-color: ${deadlineColor}">
+                        <div class="deadline-info">
+                            <div class="deadline-name">
+                                ${deadline.name}
+                                ${deadline.pdf ? '<span style="margin-left: 0.5rem; color: ' + deadlineColor + '; cursor: pointer;" onclick="window.downloadPdf(\'' + deadline.pdf.data + '\', \'' + deadline.pdf.name + '\')" title="Download ' + deadline.pdf.name + '">📄</span>' : ''}
+                            </div>
+                            <div class="deadline-date-text">${dateStr}</div>
+                        </div>
+                        <div class="deadline-countdown">
+                            ${countdownText}
+                        </div>
+                        <div class="deadline-actions">
+                            <button class="icon-btn" onclick="editDeadline(${index})" title="Edit">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="icon-btn delete-icon" onclick="deleteDeadline(${index})" title="Delete">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Delete deadline
+        window.deleteDeadline = function(index) {
+            if (confirm('Are you sure you want to delete this deadline?')) {
+                const deadlines = loadDeadlines();
+                deadlines.splice(index, 1);
+                saveDeadlines(deadlines);
+                renderDeadlines();
+            }
+        }
+
+        // Open deadline modal
+        function openDeadlineModal(deadline = null, index = null) {
+            editingDeadlineIndex = index;
+            document.getElementById('deadlineModal').classList.add('active');
+            
+            if (deadline) {
+                // Edit mode
+                document.querySelector('#deadlineModal .entry-date').textContent = 'Edit Deadline';
+                document.getElementById('deadlineName').value = deadline.name;
+                document.getElementById('deadlineDate').value = deadline.date;
+                
+                // Select the matching color
+                const colorInputs = document.querySelectorAll('input[name="deadlineColor"]');
+                const matchingColor = Array.from(colorInputs).find(input => input.value === deadline.color);
+                if (matchingColor) {
+                    matchingColor.checked = true;
+                } else {
+                    document.getElementById('color5').checked = true; // Default to gold
+                }
+                
+                // Handle PDF attachment
+                if (deadline.pdf) {
+                    currentPdfFile = deadline.pdf;
+                    showDeadlineFileInfo(deadline.pdf.name);
+                } else {
+                    currentPdfFile = null;
+                    hideDeadlineFileInfo();
+                }
+            } else {
+                // Add mode
+                document.querySelector('#deadlineModal .entry-date').textContent = 'Add Deadline';
+                document.getElementById('deadlineName').value = '';
+                document.getElementById('deadlineDate').value = '';
+                document.getElementById('color5').checked = true; // Default to gold
+                currentPdfFile = null;
+                hideDeadlineFileInfo();
+            }
+        }
+
+        // Close deadline modal
+        function closeDeadlineModal() {
+            document.getElementById('deadlineModal').classList.remove('active');
+            editingDeadlineIndex = null;
+        }
+
+        // Edit deadline
+        window.editDeadline = function(index) {
+            const deadlines = loadDeadlines();
+            openDeadlineModal(deadlines[index], index);
+        }
+
+        // Load entries from localStorage
+        function loadEntries() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : {};
+        }
+
+        // Save entries to localStorage
+        function saveEntries(entries) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+        }
+
+        // Format date as YYYY-MM-DD
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        // Format date for display
+        function formatDisplayDate(date) {
+            return date.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        // Render calendar
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // Update month/year display
+            document.getElementById('monthYear').textContent = 
+                currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+
+            // Get previous month's last days
+            const prevLastDay = new Date(year, month, 0);
+            const prevDaysInMonth = prevLastDay.getDate();
+
+            const calendar = document.getElementById('calendar');
+            const entries = loadEntries();
+            const deadlines = loadDeadlines();
+            const today = formatDate(new Date());
+
+            // Create a map of deadline dates to colors for quick lookup
+            const deadlineMap = {};
+            deadlines.forEach(d => {
+                deadlineMap[d.date] = d.color || '#D4A574';
+            });
+
+            // Clear existing days (keep headers)
+            while (calendar.children.length > 7) {
+                calendar.removeChild(calendar.lastChild);
+            }
+
+            // Add previous month's days
+            for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+                const day = prevDaysInMonth - i;
+                const cell = createDayCell(day, true);
+                calendar.appendChild(cell);
+            }
+
+            // Add current month's days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateStr = formatDate(date);
+                const cell = createDayCell(day, false, dateStr);
+                
+                if (dateStr === today) {
+                    cell.classList.add('today');
+                }
+                
+                if (deadlineMap[dateStr]) {
+                    cell.classList.add('has-deadline');
+                    const color = deadlineMap[dateStr];
+                    cell.style.borderColor = color;
+                    cell.style.boxShadow = `0 0 0 2px ${color}33`;
+                    cell.querySelector('.day-number').style.color = color;
+                }
+                
+                if (entries[dateStr]) {
+                    cell.classList.add('has-entry');
+                    const preview = document.createElement('div');
+                    preview.className = 'day-preview';
+                    preview.textContent = entries[dateStr].scales || entries[dateStr].pieces || 'Practice logged';
+                    cell.appendChild(preview);
+                }
+                
+                calendar.appendChild(cell);
+            }
+
+            // Add next month's days
+            const totalCells = calendar.children.length - 7;
+            const remainingCells = (Math.ceil(totalCells / 7) * 7) - totalCells;
+            for (let day = 1; day <= remainingCells; day++) {
+                const cell = createDayCell(day, true);
+                calendar.appendChild(cell);
+            }
+        }
+
+        // Create a day cell
+        function createDayCell(day, isOtherMonth, dateStr = null) {
+            const cell = document.createElement('div');
+            cell.className = 'day-cell';
+            if (isOtherMonth) {
+                cell.classList.add('other-month');
+            }
+            
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = day;
+            cell.appendChild(dayNumber);
+
+            if (!isOtherMonth && dateStr) {
+                cell.addEventListener('click', () => openEntry(dateStr));
+            }
+
+            return cell;
+        }
+
+        // Open entry modal
+        function openEntry(dateStr) {
+            selectedDate = dateStr;
+            const date = new Date(dateStr + 'T12:00:00');
+            document.getElementById('entryDate').textContent = formatDisplayDate(date);
+            document.getElementById('dailyQuote').textContent = getRandomQuote();
+            
+            const entries = loadEntries();
+            const entry = entries[dateStr] || {};
+            
+            document.getElementById('scales').value = entry.scales || '';
+            document.getElementById('pieces').value = entry.pieces || '';
+            document.getElementById('goals').value = entry.goals || '';
+            document.getElementById('notes').value = entry.notes || '';
+            
+            document.getElementById('entryModal').classList.add('active');
+        }
+
+        // Close entry modal
+        function closeEntry() {
+            document.getElementById('entryModal').classList.remove('active');
+            selectedDate = null;
+        }
+
+        // Save entry
+        document.getElementById('entryForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const entries = loadEntries();
+            entries[selectedDate] = {
+                scales: document.getElementById('scales').value,
+                pieces: document.getElementById('pieces').value,
+                goals: document.getElementById('goals').value,
+                notes: document.getElementById('notes').value
+            };
+            
+            saveEntries(entries);
+            closeEntry();
+            renderCalendar();
+        });
+
+        // Save deadline
+        document.getElementById('deadlineForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const deadlines = loadDeadlines();
+            const selectedColor = document.querySelector('input[name="deadlineColor"]:checked').value;
+            
+            const deadlineData = {
+                name: document.getElementById('deadlineName').value,
+                date: document.getElementById('deadlineDate').value,
+                color: selectedColor,
+                pdf: currentPdfFile
+            };
+            
+            if (editingDeadlineIndex !== null) {
+                // Edit existing deadline
+                deadlines[editingDeadlineIndex] = deadlineData;
+            } else {
+                // Add new deadline
+                deadlines.push(deadlineData);
+            }
+            
+            saveDeadlines(deadlines);
+            closeDeadlineModal();
+            renderDeadlines();
+            renderCalendar();
+        });
+
+        // Delete entry
+        document.getElementById('deleteEntry').addEventListener('click', () => {
+            if (confirm('Are you sure you want to delete this entry?')) {
+                const entries = loadEntries();
+                delete entries[selectedDate];
+                saveEntries(entries);
+                closeEntry();
+                renderCalendar();
+            }
+        });
+
+        // Navigation
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        document.getElementById('todayBtn').addEventListener('click', () => {
+            currentDate = new Date();
+            renderCalendar();
+        });
+
+        document.getElementById('closeModal').addEventListener('click', closeEntry);
+
+        document.getElementById('addDeadlineBtn').addEventListener('click', openDeadlineModal);
+        document.getElementById('closeDeadlineModal').addEventListener('click', closeDeadlineModal);
+
+        // Deadline file upload handlers
+        document.getElementById('deadlineUploadBtn').addEventListener('click', () => {
+            document.getElementById('deadlinePdf').click();
+        });
+        
+        document.getElementById('deadlinePdf').addEventListener('change', handleDeadlineFileSelect);
+        
+        document.getElementById('deadlineFileName').addEventListener('click', () => {
+            if (currentPdfFile) {
+                window.downloadPdf(currentPdfFile.data, currentPdfFile.name);
+            }
+        });
+        
+        document.getElementById('deadlineRemoveFileBtn').addEventListener('click', hideDeadlineFileInfo);
+
+        // Close modal when clicking outside
+        document.getElementById('entryModal').addEventListener('click', (e) => {
+            if (e.target.id === 'entryModal') {
+                closeEntry();
+            }
+        });
+
+        document.getElementById('deadlineModal').addEventListener('click', (e) => {
+            if (e.target.id === 'deadlineModal') {
+                closeDeadlineModal();
+            }
+        });
+
+        // Export/Import handlers
+        document.getElementById('exportDataBtn').addEventListener('click', exportData);
+        document.getElementById('importDataBtn').addEventListener('click', () => {
+            document.getElementById('importFileInput').click();
+        });
+        document.getElementById('importFileInput').addEventListener('change', importData);
+
+        // Initial render
+        renderCalendar();
+        renderDeadlines();
+        }); // End DOMContentLoaded
+    </script>
+</body>
+</html>
