@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Practice Log</title>
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         :root {
             --cream: #FAF7F0;
@@ -557,6 +558,45 @@
             transition: all 0.3s ease;
         }
 
+        input[type="date"] {
+            cursor: pointer;
+            position: relative;
+            padding-right: 3rem;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            margin-right: -0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: var(--warm-brown);
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            background: rgba(139, 115, 85, 0.1);
+        }
+
+        .date-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .date-icon {
+            position: absolute;
+            left: 1rem;
+            font-size: 1.3rem;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .date-input-wrapper input[type="date"] {
+            padding-left: 3.5rem;
+        }
+
         input[type="text"]:focus,
         input[type="date"]:focus,
         textarea:focus {
@@ -860,6 +900,97 @@
                 font-size: 1.2rem;
             }
         }
+
+        /* Custom Flatpickr Styling */
+        .flatpickr-calendar {
+            background: var(--cream);
+            border: 2px solid var(--warm-brown);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px var(--shadow);
+            font-family: 'Crimson Pro', serif;
+        }
+
+        .flatpickr-months {
+            background: var(--warm-brown);
+            border-radius: 10px 10px 0 0;
+        }
+
+        .flatpickr-month {
+            color: var(--cream);
+        }
+
+        .flatpickr-current-month {
+            font-size: 1.2rem;
+            color: var(--cream);
+            font-weight: 600;
+        }
+
+        .flatpickr-current-month .flatpickr-monthDropdown-months {
+            background: var(--warm-brown);
+            color: var(--cream);
+            font-weight: 600;
+        }
+
+        .flatpickr-current-month .numInputWrapper {
+            color: var(--cream);
+        }
+
+        .flatpickr-current-month input.cur-year {
+            color: var(--cream);
+            font-weight: 600;
+        }
+
+        .flatpickr-prev-month,
+        .flatpickr-next-month {
+            fill: var(--cream);
+        }
+
+        .flatpickr-prev-month:hover,
+        .flatpickr-next-month:hover {
+            fill: var(--accent-gold);
+        }
+
+        .flatpickr-weekdays {
+            background: rgba(139, 115, 85, 0.1);
+        }
+
+        .flatpickr-weekday {
+            color: var(--warm-brown);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .flatpickr-day {
+            color: var(--deep-brown);
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .flatpickr-day:hover {
+            background: rgba(212, 165, 116, 0.2);
+            border-color: var(--accent-gold);
+        }
+
+        .flatpickr-day.selected {
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+            color: white;
+            font-weight: 600;
+        }
+
+        .flatpickr-day.today {
+            border: 2px solid var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .flatpickr-day.today:hover {
+            background: rgba(212, 165, 116, 0.3);
+        }
+
+        .flatpickr-day.prevMonthDay,
+        .flatpickr-day.nextMonthDay {
+            color: var(--soft-gray);
+        }
     </style>
 </head>
 <body>
@@ -972,7 +1103,7 @@
 
                 <div class="form-group">
                     <label for="deadlineDate">Date</label>
-                    <input type="date" id="deadlineDate" required>
+                    <input type="text" id="deadlineDate" placeholder="Select date..." required>
                 </div>
 
                 <div class="form-group">
@@ -1054,8 +1185,32 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+        
+        // Initialize Flatpickr for date picker
+        let deadlineDatePicker = null;
+        
+        function initializeDatePicker() {
+            if (deadlineDatePicker) {
+                deadlineDatePicker.destroy();
+            }
+            deadlineDatePicker = flatpickr("#deadlineDate", {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "F j, Y",
+                minDate: "today",
+                disableMobile: true,
+                onChange: function(selectedDates, dateStr, instance) {
+                    // Date is automatically updated in the input
+                }
+            });
+        }
+        
+        // Initialize on page load
+        initializeDatePicker();
+        
         const STORAGE_KEY = 'practiceLogEntries';
         const DEADLINES_KEY = 'practiceLogDeadlines';
         let currentDate = new Date();
@@ -1378,7 +1533,13 @@
                 // Edit mode
                 document.getElementById('deadlineModalTitle').textContent = 'Edit Deadline';
                 document.getElementById('deadlineName').value = deadline.name || '';
-                document.getElementById('deadlineDate').value = deadline.date || '';
+                
+                // Set date using Flatpickr
+                if (deadlineDatePicker && deadline.date) {
+                    deadlineDatePicker.setDate(deadline.date);
+                } else {
+                    document.getElementById('deadlineDate').value = deadline.date || '';
+                }
                 
                 // Select the matching color
                 const colorInputs = document.querySelectorAll('input[name="deadlineColor"]');
@@ -1401,7 +1562,12 @@
                 // Add mode
                 document.getElementById('deadlineModalTitle').textContent = 'Add Deadline';
                 document.getElementById('deadlineName').value = '';
-                document.getElementById('deadlineDate').value = '';
+                
+                // Clear date using Flatpickr
+                if (deadlineDatePicker) {
+                    deadlineDatePicker.clear();
+                }
+                
                 document.getElementById('color5').checked = true; // Default to gold
                 currentPdfFile = null;
                 hideDeadlineFileInfo();
