@@ -23,7 +23,7 @@
 
 🎯 Use Cases
 
-Music Students: Track daily practice and prepare for auditions
-Teachers: Share with students to encourage consistent practice
-Professional Musicians: Manage performance deadlines and repertoire preparation
-Music Parents: Help children track their practice goals
+-Music Students: Track daily practice and prepare for auditions
+-Teachers: Share with students to encourage consistent practice
+-Professional Musicians: Manage performance deadlines and repertoire preparation
+-Music Parents: Help children track their practice goals
