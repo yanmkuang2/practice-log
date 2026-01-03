@@ -19,3 +19,10 @@
 -Export your entire practice log as a backup file
 -Import data to restore or transfer between devices
 -All data stored locally in your browser (privacy-first approach)
+
+🎯 Use Cases
+
+Music Students: Track daily practice and prepare for auditions
+Teachers: Share with students to encourage consistent practice
+Professional Musicians: Manage performance deadlines and repertoire preparation
+Music Parents: Help children track their practice goals
